@@ -1,0 +1,12 @@
+{
+    "icon_path": "util/icon.ico",
+    "dpi_awareness": true,
+    "language": "eng",
+    "baud_rate": 115200,
+    "terminal_font": "Hack",
+    "connect_window_size": "640x480",
+    "bus_tracer_window_size": "800x600",
+    "autoconnect_port": "COM3",
+    "memory_browser_window_size": "400x600",
+    "use_vasm": true
+}
