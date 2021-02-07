@@ -1,3 +1,6 @@
+import sys
+
+
 class Color:
     BLACK = "\033[30m"
     RED = "\033[31m"
@@ -10,6 +13,8 @@ class Color:
     DARK = "\033[90m"
     RESET = "\033[0m"
     BOLD = "\033[1m"
+    LIGHT_YELLOW = "\033[38;5;229m"
+    ORANGE = "\033[38;5;202m"
 
 
 def myprint(text, color=None):
@@ -18,6 +23,7 @@ def myprint(text, color=None):
     print(text, end="")
     if color:
         print(Color.RESET, end="")
+    sys.stdout.flush()
 
 
 def myprint_error(text):

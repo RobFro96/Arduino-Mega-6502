@@ -1,20 +1,3 @@
-const uint8_t PROTOCOL_START_BYTE = 0xFF;     //!> Value of the start byte
-const uint8_t PROTOCOL_MESSAGE_EXTRA_LEN = 3; //!> Length of the total message = PROTOCOL_MESSAGE_EXTRA_LEN + Payload Length
-const uint8_t PROTOCOL_COMMAND = 1;           //!> Index of the command byte
-const uint8_t PROTOCOL_PAYLOAD_LEN = 2;       //!> Index of the payload length
-const uint8_t PROTOCOL_DATA = 3;              //!> Index of the first data byte
-
-const uint8_t PROTOCOL_WHOIAM_VALUE = 0xf2;
-const uint8_t PROTOCOL_VERSION = 1;
-
-typedef enum
-{
-    CMD_WHOIAM_VERSION = 1,
-    CMD_MEM_REQUEST = 2,
-    CMD_MEM_WRITE = 3,
-    CMD_MEM_PAGE_WRITE = 4
-} protocol_cmd_t;
-
 static uint8_t rx_buffer_index = 0;
 static uint8_t rx_payload_len;
 uint8_t rx_buffer[257];
@@ -61,6 +44,9 @@ static void message_decode()
     case CMD_MEM_PAGE_WRITE:
         cmd_mem_page_write();
         break;
+    case CMD_API_ACTIONS:
+        cmd_api_actions();
+        break;
     }
 }
 
@@ -68,6 +54,8 @@ static void cmd_whoiam_version()
 {
     char response[5] = {PROTOCOL_START_BYTE, CMD_WHOIAM_VERSION, 2, PROTOCOL_WHOIAM_VALUE, PROTOCOL_VERSION};
     Serial.write(response, 5);
+
+    phi_halt();
 }
 
 static void cmd_mem_request()
@@ -93,7 +81,7 @@ static void cmd_mem_request()
 
     for (uint8_t i = 0; i < length; i++)
     {
-        p_abus_set((memory_pointer & 0x7FFF) + 0x8000);
+        p_abus_set(memory_pointer);
         delayMicroseconds(10);
         uint8_t data = p_dbus_val();
         Serial.write(&data, 1);
@@ -150,7 +138,7 @@ static void cmd_mem_page_write()
     }
 
     memory_pointer = rx_buffer[PROTOCOL_DATA] + ((uint16_t)rx_buffer[PROTOCOL_DATA + 1] << 8);
-    memory_pointer = memory_pointer & 0xFFC0 | 0x8000;
+    memory_pointer = (memory_pointer & 0xFFC0) | 0x8000;
 
     p_rdy_be_l();
     p_eeprom_oe_h();
@@ -176,6 +164,55 @@ static void cmd_mem_page_write()
     p_eeprom_oe_l();
     p_rdy_be_h();
 
-    char response[3] = {PROTOCOL_START_BYTE, CMD_MEM_PAGE_WRITE, 1};
+    char response[3] = {PROTOCOL_START_BYTE, CMD_MEM_PAGE_WRITE, 0};
     Serial.write(response, 3);
+}
+
+static void cmd_api_actions()
+{
+    if (rx_buffer[PROTOCOL_PAYLOAD_LEN] != 1)
+    {
+        char response[3] = {PROTOCOL_START_BYTE, CMD_API_ACTIONS, 0};
+        Serial.write(response, 3);
+        return;
+    }
+
+    uint8_t actions = rx_buffer[PROTOCOL_DATA];
+
+    char response[3] = {PROTOCOL_START_BYTE, CMD_API_ACTIONS, 0};
+    Serial.write(response, 3);
+
+    if (actions & CMD_API_ACTION_IRQ)
+    {
+        p_irq_l();
+    }
+    if (actions & CMD_API_ACTION_NMI)
+    {
+        p_nmi_l();
+    }
+    if (actions & CMD_API_ACTION_RESET)
+    {
+        p_reset_l();
+    }
+    if (actions & CMD_API_ACTION_SINGLE_STEP)
+    {
+        if (!single_stepping)
+        {
+            phi_halt();
+        }
+        single_step();
+    }
+    if (actions & CMD_API_ACTION_RUN)
+    {
+        phi_run();
+    }
+    if (actions & CMD_API_ACTION_AUTO_RESET)
+    {
+        phi_halt();
+        p_reset_l();
+        for (uint8_t i = 0; i < 10; i++)
+        {
+            single_step();
+        }
+    }
 }

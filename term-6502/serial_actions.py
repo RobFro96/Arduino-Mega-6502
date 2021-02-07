@@ -104,9 +104,7 @@ class SerialActions:
 
     @classmethod
     def connecting(cls, portname: str, args):
-        myprint("Connecting to ")
-        myprint(portname, Color.BOLD)
-        myprint(".")
+        myprint("Connecting to %s." % portname)
 
         try:
             serial_thread = SerialThread(portname, args)

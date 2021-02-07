@@ -15938,7 +15938,6 @@ OSHW_LOGO</description>
 <part name="P+5" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="+5V" device=""/>
 <part name="GND7" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
 <part name="U3" library="6502_lib" deviceset="62256" device="" package3d_urn="urn:adsk.eagle:package:20790/1"/>
-<part name="GND8" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
 <part name="M2" library="6502_lib" deviceset="LCD-16X2" device=""/>
 <part name="P+6" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="+5V" device=""/>
 <part name="GND9" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
@@ -16267,9 +16266,6 @@ OSHW_LOGO</description>
 <instance part="U3" gate="G$1" x="149.86" y="-40.64" smashed="yes">
 <attribute name="NAME" x="139.7" y="-5.08" size="1.778" layer="95"/>
 <attribute name="VALUE" x="139.7" y="-7.62" size="1.778" layer="96"/>
-</instance>
-<instance part="GND8" gate="1" x="35.56" y="-27.94" smashed="yes">
-<attribute name="VALUE" x="33.02" y="-30.48" size="1.778" layer="96"/>
 </instance>
 <instance part="M2" gate="G$1" x="165.1" y="-114.3" smashed="yes">
 <attribute name="NAME" x="157.48" y="-93.98" size="1.778" layer="95"/>
@@ -17300,12 +17296,6 @@ OSHW_LOGO</description>
 <wire x1="129.54" y1="-68.58" x2="129.54" y2="-71.12" width="0.1524" layer="91"/>
 <pinref part="GND7" gate="1" pin="GND"/>
 <pinref part="U3" gate="G$1" pin="GND"/>
-</segment>
-<segment>
-<pinref part="U2" gate="G$1" pin="!OE"/>
-<wire x1="53.34" y1="-20.32" x2="35.56" y2="-20.32" width="0.1524" layer="91"/>
-<wire x1="35.56" y1="-20.32" x2="35.56" y2="-25.4" width="0.1524" layer="91"/>
-<pinref part="GND8" gate="1" pin="GND"/>
 </segment>
 <segment>
 <pinref part="GND9" gate="1" pin="GND"/>
@@ -19590,6 +19580,18 @@ OSHW_LOGO</description>
 <pinref part="R61" gate="G$1" pin="2"/>
 <pinref part="M2" gate="G$1" pin="VO"/>
 <wire x1="137.16" y1="-106.68" x2="152.4" y2="-106.68" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="EEPROM_!OE" class="0">
+<segment>
+<pinref part="U2" gate="G$1" pin="!OE"/>
+<wire x1="53.34" y1="-20.32" x2="50.8" y2="-20.32" width="0.1524" layer="91"/>
+<label x="50.8" y="-20.32" size="1.27" layer="95" rot="R180" xref="yes"/>
+</segment>
+<segment>
+<pinref part="M1" gate="G$1" pin="PD7"/>
+<wire x1="17.78" y1="66.04" x2="15.24" y2="66.04" width="0.1524" layer="91"/>
+<label x="15.24" y="66.04" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 </nets>

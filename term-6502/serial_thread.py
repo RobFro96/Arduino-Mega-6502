@@ -6,6 +6,7 @@ import typing
 
 import serial
 
+from myprint import myprint_error
 from protocol import Protocol, ProtocolCommands, ProtocolMsg
 
 
@@ -68,7 +69,8 @@ class SerialThread(threading.Thread):
                         msg = []
                         payload_len = 0
         except serial.SerialException:
-            pass
+            myprint_error("Serial port %s disconnected.\n" % self.port)
+            self.stop_event.set()
 
         if self.connection and self.connection.is_open:
             self.connection.close()

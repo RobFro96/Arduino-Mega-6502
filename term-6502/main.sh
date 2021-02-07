@@ -1,1 +1,1 @@
-python main.py -p COM3 -f lcd_hello_world.asm
+python main.py -p COM3
