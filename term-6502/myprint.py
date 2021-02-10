@@ -1,7 +1,15 @@
+"""Arduino-Mega-6502: Programmer and Debugger for 6502 Ben Eater inspired 8-bit Computer
+by Robert Fromm, February 2021
+
+Color definitions and function used for printing messages.
+"""
+
 import sys
 
 
 class Color:
+    """Color Codes
+    """
     BLACK = "\033[30m"
     RED = "\033[31m"
     GREEN = "\033[32m"
@@ -18,6 +26,13 @@ class Color:
 
 
 def myprint(text, color=None):
+    """Function to print a text in the given color.
+    After this function stdout is flushed to ensure that the text appears on screen.
+
+    Args:
+        text (str): text to print
+        color (str, optional): color to used. Defaults to None.
+    """
     if color:
         print(color, end="")
     print(text, end="")
@@ -27,8 +42,18 @@ def myprint(text, color=None):
 
 
 def myprint_error(text):
+    """Prints an error message in red
+
+    Args:
+        text (str): text to print
+    """
     myprint(text, Color.RED)
 
 
 def myprint_warning(text):
+    """Prints an warning message in yellow
+
+    Args:
+        text (str): text to print
+    """
     myprint(text, Color.YELLOW)

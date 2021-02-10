@@ -1,9 +1,20 @@
+"""Arduino-Mega-6502: Programmer and Debugger for 6502 Ben Eater inspired 8-bit Computer
+by Robert Fromm, February 2021
+
+Prints help and manages CLI arguments (argparse)
+"""
+
+
 import argparse
 
 from myprint import Color, myprint
 
 
 class HelpActions:
+    """Prints help and manages CLI arguments (argparse)
+    """
+
+    # Shortcuts to be printed
     shortcuts = [
         ("h", "Help"),
         ("q", "Quit"),
@@ -22,11 +33,16 @@ class HelpActions:
         ("x", "Run")
     ]
 
-    tabulator = 20
-    shortcuts_per_line = 3
+    tabulator = 20  # length of description text
+    shortcuts_per_line = 3  # number of shortcuts per help line
 
     @classmethod
     def get_args(cls):
+        """Sets the argparser options and parses the current CLI arguments
+
+        Returns:
+            CLI arguments
+        """
         parser = argparse.ArgumentParser(
             description="TERM-6502\nArduino Mega 6502 Support")
         parser.add_argument("-p", "--port", type=str, action="store", help="serial port of device")
@@ -45,6 +61,8 @@ class HelpActions:
 
     @classmethod
     def print_help(cls):
+        """Prints the help text
+        """
         myprint(" 6502 - TERMINAL\n")
         myprint("=================\n")
 
