@@ -183,6 +183,9 @@ class Main():
     def program(self):
         """Programs the EEPROM
         """
+        if self.is_file_binary():
+            self.read_binary_and_update_disam()
+
         self.auto_single_step = False
         AssemblyActions.flash(self.args, self.binary, self.serial_thread)
 

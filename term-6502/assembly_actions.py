@@ -9,7 +9,7 @@ import os
 import tkinter
 import tkinter.filedialog
 
-from myprint import myprint, myprint_error
+from myprint import myprint, myprint_error, myprint_warning
 from protocol import ProtocolCommands
 from serial_actions import enable_dpi_awareness
 from serial_thread import SerialThread
@@ -82,7 +82,7 @@ class AssemblyActions:
         out_filename = cls.get_bin_from_asm(assembly_file)
 
         code = os.system(" ".join(
-            [vasm_path, "-Fbin", "-dotdir", assembly_file, "-o", out_filename]
+            [vasm_path, "-Fbin", "-wdc02", "-dotdir", assembly_file, "-o", out_filename]
         ))
 
         if code:
@@ -108,6 +108,12 @@ class AssemblyActions:
         try:
             with open(bin_file, "rb") as fp:
                 eeprom_content = list(bytearray(fp.read()))
+                if len(eeprom_content) < 0x8000:
+                    eeprom_content = eeprom_content + [0] * (0x8000 - len(eeprom_content))
+                elif len(eeprom_content) > 0x8000:
+                    myprint_warning("Binary is larger than EEPROM!")
+                    eeprom_content = eeprom_content[:0x8000]
+
                 return ReadBinFileResult(True, eeprom_content)
         except (OSError, IOError, FileNotFoundError):
             return ReadBinFileResult(False)
