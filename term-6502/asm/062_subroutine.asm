@@ -14,7 +14,7 @@ reset:
     txs
 
     lda #(LED1 + LED2 + LED3 + LED4)
-    sta DDRA   ; DDRB = 0xFF
+    sta DDRA
 
 loop:
     lda ORA
@@ -44,15 +44,15 @@ loop:
     jmp loop
 
 delay:
-    nop
-;    ldy #0xFF
-;delay1:
-;    ldy #39
-;delay2:
-;    dey
-;    bne delay2
-;    dex
-;    bne delay1
+;    nop
+    ldy #0xFF
+delay1:
+    ldy #39
+delay2:
+    dey
+    bne delay2
+    dex
+    bne delay1
     rts
 
     .org $FFFC

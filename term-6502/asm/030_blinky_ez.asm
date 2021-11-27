@@ -10,5 +10,5 @@
 
     jmp 0x8005
 
-    .org $FFFC
+    .org 0xFFFC
     .word 0x8000

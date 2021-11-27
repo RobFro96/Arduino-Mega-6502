@@ -11,7 +11,7 @@ LED4 = 0x80
     .org 0x8000
 reset:
     lda #(LED1 + LED2 + LED3 + LED4)
-    sta DDRA   ; DDRB = 0xFF
+    sta DDRA
 
 loop:
     lda ORA
@@ -32,5 +32,5 @@ loop:
 
     jmp loop
 
-    .org $FFFC
+    .org 0xFFFC
     .word reset

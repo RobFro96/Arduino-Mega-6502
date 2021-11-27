@@ -1,5 +1,5 @@
-    DDRB = 0x7F02
-    ORB = 0x7F00
+DDRB = 0x7F02
+ORB = 0x7F00
 
     .org 0x8000
 reset:

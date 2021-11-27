@@ -18,7 +18,7 @@ loop:
     eor #LED1
     sta ORA
 
-    ldx #0xFF
+    ldx #0x00
 delay1:
     dex
     bne delay1

@@ -5,7 +5,7 @@ DDRA = 0x7F03
 
     .org 0x8000
 reset:
-    ;cli
+    cli
     ldx #$ff
     txs
     lda #0xFF
