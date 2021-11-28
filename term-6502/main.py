@@ -156,7 +156,7 @@ class Main():
             self.binary = result.eeprom_content
 
             # EEPROM is second half of memory, starting at 0x8000.
-            memory = [0]*0x8000 + self.binary
+            memory = [0]*(0x10000 - AssemblyActions.EEPROM_SIZE) + self.binary
             self.disasm = dis6502(memory)
         return result.success
 
@@ -212,13 +212,6 @@ class Main():
         self.auto_single_step = False
         BusActions.send_api_single_step(self.serial_thread)
 
-    def run_program(self):
-        """Let the 6502 run freely.
-        """
-        self.auto_single_step = False
-        BusActions.send_api_run(self.serial_thread)
-        myprint("Running program, no bus trace available!\n")
-
     def assemble_program_reset(self):
         """Automatically assembles, programs and resets 6502
         """
@@ -253,8 +246,7 @@ class Main():
             "u": self.assemble_program_reset,
 
             "s": self.single_step,
-            "t": self.auto_single_step_toggle,
-            "x": self.run_program
+            "t": self.auto_single_step_toggle
         }
 
         if chr(key) in keymap:

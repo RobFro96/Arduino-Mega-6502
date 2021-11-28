@@ -37,12 +37,13 @@ class MemoryRegions:
     ZEROPAGE = Region("ZEROPAGE", 0x0000, 0x00FF, Color.LIGHT_YELLOW)
     STACK = Region("STACK", 0x0100, 0x01FF, Color.ORANGE)
     RAM = Region("RAM", 0x0200, 0x3FFF, Color.YELLOW)
-    PIA = Region("PIA", 0x7F00, 0x7F0F, Color.BLUE)
-    LCD = Region("LCD", 0x7F10, 0x7F1F, Color.GREEN)
-    EEPROM = Region("EEPROM", 0x8000, 0xFFFF, "")
+    PIA = Region("PIA", 0x8000, 0x8FFF, Color.BLUE)
+    LCD = Region("LCD", 0x9000, 0x9FFF, Color.GREEN)
+    AIO = Region("AIO", 0xD000, 0xDFFF, Color.CYAN)
+    EEPROM = Region("EEPROM", 0xE000, 0xFFFF, "")
 
     # Add regions to list
-    REGIONS = [ZEROPAGE, STACK, RAM, PIA, LCD, EEPROM]
+    REGIONS = [ZEROPAGE, STACK, RAM, PIA, LCD, AIO, EEPROM]
 
     @classmethod
     def get_region(cls, addr: int):

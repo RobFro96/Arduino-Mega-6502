@@ -1,15 +1,7 @@
-ORB = 0x7F00
-ORA = 0x7F01
-DDRB = 0x7F02
-DDRA = 0x7F03
-PCR = 0x7F0C
-IFR = 0x7F0D
-IER = 0x7F0E
+LCD_CMD = 0x9000
+LCD_DATA = 0x9001
 
-LCD_CMD = 0x7F10
-LCD_DATA = 0x7F11
-
-    .org 0x8000
+    .org 0xE000
 reset:
     cli
     ldx #$ff

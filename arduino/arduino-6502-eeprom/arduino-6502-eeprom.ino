@@ -1,5 +1,6 @@
 #include <OneButton.h>
 #include "defines.h"
+#include <EEPROM.h>
 
 OneButton btn_halt_step(40, true, true);
 bool single_stepping = false;
@@ -16,6 +17,8 @@ void setup()
 
     btn_halt_step.attachClick(on_btn_halt_step_clicked);
     btn_halt_step.attachLongPressStart(on_btn_halt_step_long_press);
+
+    single_stepping = EEPROM.read(0);
     p_halt_led_set(single_stepping);
 
     p_reset_h();
@@ -24,6 +27,17 @@ void setup()
 
 void loop()
 {
+    if (!single_stepping)
+    {
+        while (!(PING & (1 << 1)))
+            ;
+        delay(50);
+
+        run_free();
+
+        set_single_stepping_state(true);
+    }
+
     btn_halt_step.tick();
 
     if (Serial.available())
@@ -31,18 +45,18 @@ void loop()
         protocol_on_rxd();
     }
 
-    // Vector auto-hold
-    if (single_stepping && !p_reset_val())
+    // Reset auto-hold
+    if (!p_reset_val())
     {
         p_reset_l();
     }
+}
 
-    if (!single_stepping)
-    {
-        p_phi2_l();
-        delayMicroseconds(1);
-        p_phi2_h();
-    }
+void set_single_stepping_state(bool state)
+{
+    single_stepping = state;
+    p_halt_led_set(state);
+    EEPROM.write(0, state);
 }
 
 void on_btn_halt_step_clicked()
@@ -57,31 +71,16 @@ void on_btn_halt_step_long_press()
 {
     if (single_stepping)
     {
-        phi_run();
+        set_single_stepping_state(false);
+        p_cbus_vectors_set(0);
     }
-    else
-    {
-        phi_halt();
-    }
-}
-
-void phi_run()
-{
-    single_stepping = false;
-    p_halt_led_set(single_stepping);
-    p_cbus_vectors_set(0);
-}
-
-void phi_halt()
-{
-    single_stepping = true;
-    p_halt_led_set(single_stepping);
 }
 
 void single_step()
 {
     p_phi2_l();
-    delayMicroseconds(1);
+    p_dbus_input();
+    __asm__ __volatile__("nop");
     p_phi2_h();
 
     char response[7] = {

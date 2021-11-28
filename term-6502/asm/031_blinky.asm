@@ -1,7 +1,7 @@
-DDRB = 0x7F02
-ORB = 0x7F00
+DDRB = 0x8002
+ORB = 0x8000
 
-    .org 0x8000
+    .org 0xE000
 reset:
     lda #0xFF
     sta DDRB   ; DDRB = 0xFF

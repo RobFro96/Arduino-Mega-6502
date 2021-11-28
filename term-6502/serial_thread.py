@@ -7,7 +7,6 @@ Opens a thread for serial communication with the Arduino, using the specified pr
 import dataclasses
 import queue
 import threading
-import time
 import typing
 
 import serial
@@ -84,11 +83,6 @@ class SerialThread(threading.Thread):
     def run(self):
         """Thread run method.
         """
-        # Reset the Arduinp
-        self.connection.setDTR(True)
-        time.sleep(1e-3)
-        self.connection.setDTR(False)
-        self.connection.read(1)
         self.ready_event.set()
 
         msg = []

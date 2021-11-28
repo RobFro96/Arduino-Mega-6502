@@ -177,12 +177,3 @@ class BusActions:
             serial_thread (SerialThread)
         """
         cls.send_api_action(serial_thread, ApiActions.SINGLE_STEP)
-
-    @classmethod
-    def send_api_run(cls, serial_thread: SerialThread):
-        """Sends a run action
-
-        Args:
-            serial_thread (SerialThread)
-        """
-        cls.send_api_action(serial_thread, ApiActions.RUN)

@@ -54,8 +54,6 @@ static void cmd_whoiam_version()
 {
     char response[5] = {PROTOCOL_START_BYTE, CMD_WHOIAM_VERSION, 2, PROTOCOL_WHOIAM_VALUE, PROTOCOL_VERSION};
     Serial.write(response, 5);
-
-    phi_halt();
 }
 
 static void cmd_mem_request()
@@ -196,19 +194,10 @@ static void cmd_api_actions()
     }
     if (actions & CMD_API_ACTION_SINGLE_STEP)
     {
-        if (!single_stepping)
-        {
-            phi_halt();
-        }
         single_step();
-    }
-    if (actions & CMD_API_ACTION_RUN)
-    {
-        phi_run();
     }
     if (actions & CMD_API_ACTION_AUTO_RESET)
     {
-        phi_halt();
         p_reset_l();
         for (uint8_t i = 0; i < 10; i++)
         {

@@ -24,6 +24,9 @@ class ReadBinFileResult:
 
 
 class AssemblyActions:
+    EEPROM_SIZE = 0x2000
+    EEPROM_ORIGIN = 0xE000
+
     """Runs the Assembler, reades the binary file, programs the EEPROM
     """
     @classmethod
@@ -108,11 +111,11 @@ class AssemblyActions:
         try:
             with open(bin_file, "rb") as fp:
                 eeprom_content = list(bytearray(fp.read()))
-                if len(eeprom_content) < 0x8000:
-                    eeprom_content = eeprom_content + [0] * (0x8000 - len(eeprom_content))
-                elif len(eeprom_content) > 0x8000:
+                if len(eeprom_content) < cls.EEPROM_SIZE:
+                    eeprom_content = eeprom_content + [0] * (cls.EEPROM_SIZE - len(eeprom_content))
+                elif len(eeprom_content) > cls.EEPROM_SIZE:
                     myprint_warning("Binary is larger than EEPROM!")
-                    eeprom_content = eeprom_content[:0x8000]
+                    eeprom_content = eeprom_content[:cls.EEPROM_SIZE]
 
                 return ReadBinFileResult(True, eeprom_content)
         except (OSError, IOError, FileNotFoundError):
@@ -131,11 +134,12 @@ class AssemblyActions:
         """
         myprint("Writing to EEPROM: ")
 
-        for addr in range(0, 0x8000, 64):
+        for addr in range(0, cls.EEPROM_SIZE, 64):
             segment = eeprom_content[addr:addr+64]
+            hw_addr = addr + cls.EEPROM_ORIGIN
             if not args.fullflash and not any(segment):
                 continue
             serial_thread.do(ProtocolCommands.MEM_PAGE_WRITE,
-                             [addr & 0xFF, (addr >> 8) & 0xFF] + segment)
+                             [hw_addr & 0xFF, (hw_addr >> 8) & 0xFF] + segment)
             myprint(".")
         myprint("\nWriting finished.\n")

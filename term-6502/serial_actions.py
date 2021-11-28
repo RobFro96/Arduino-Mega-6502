@@ -182,16 +182,13 @@ class SerialActions:
 
         myprint(".")
 
-        # resets device
-        if not serial_thread.wait_on_ready(5):
-            myprint_error("\nDevice on serial port %s is not responding.\n" % portname)
-            serial_thread.close()
-            return ConnectingResult(False)
-
-        myprint(".")
-
         # checks WhoIAm value
-        result = serial_thread.do(ProtocolCommands.WHOIAM_VERSION, [], 2)
+        for _ in range(5):
+            result = serial_thread.do(ProtocolCommands.WHOIAM_VERSION, [], 2)
+            if result.success:
+                break
+            myprint("!")
+
         if not result.success:
             myprint_error("\nDevice on serial port %s is not responding to message.\n" % portname)
             serial_thread.close()
@@ -202,5 +199,6 @@ class SerialActions:
             serial_thread.close()
             return ConnectingResult(False)
 
-        myprint(". Firmware Version: %d\n" % result.data[1])
+        myprint(". Firmware Version: %d\n" % result.data
+                [1])
         return ConnectingResult(True, serial_thread)
