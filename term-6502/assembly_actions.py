@@ -112,7 +112,7 @@ class AssemblyActions:
             with open(bin_file, "rb") as fp:
                 eeprom_content = list(bytearray(fp.read()))
                 if len(eeprom_content) < cls.EEPROM_SIZE:
-                    eeprom_content = eeprom_content + [0] * (cls.EEPROM_SIZE - len(eeprom_content))
+                    eeprom_content = [0] * (cls.EEPROM_SIZE - len(eeprom_content)) + eeprom_content
                 elif len(eeprom_content) > cls.EEPROM_SIZE:
                     myprint_warning("Binary is larger than EEPROM!")
                     eeprom_content = eeprom_content[:cls.EEPROM_SIZE]
