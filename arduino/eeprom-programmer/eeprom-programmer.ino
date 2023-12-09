@@ -34,6 +34,7 @@ void loop() {
             }
             ascii_to_hex(msg.substring(1), data);
             int address = ((int)data[0] << 8) + data[1];
+            address = address & 0x7FFF;
 
             if (msg.startsWith("r")) {
                 // reading EEPROM
@@ -48,6 +49,8 @@ void loop() {
                 Serial.print("w");
                 print_data(data, 2);
                 Serial.print("\n");
+            } else if (msg.startsWith("i")) {
+                Serial.print("iRobertFromm,EEPROMProgrammer,1,2023-12\n");
             }
             msg = "";
         }
