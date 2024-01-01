@@ -1,3 +1,8 @@
+RAM = 0x00
+
+inb     = RAM
+outb    = RAM + 1
+
 RIOT = 0x80
 
 DRA     = RIOT + 0x00 ;DRA ('A' side data register)
@@ -25,24 +30,70 @@ WTD1KEI = RIOT + 0x1F ;Write timer (divide by 1024, enable interrupt)
 
     .org 0xFF00
 reset:
-    lda #0xFF
+    lda #0x02
     sta DDRA
 
-    lda #0xA5
+    ldy #0
+print_loop:
+    lda message,y
+    beq loop
+    jsr serial_tx
+    iny
+    jmp print_loop
+    
 loop:
-    eor #0xFF
-    sta DRA
-
-    ldx #0x80
-delay1:
-    ldy #0x00
-delay2:
-    dey
-    bne delay2
-    dex
-    bne delay1
-
     jmp loop
+
+
+serial_tx:
+    sta outb
+    lda #$fd ; Inverse bit 1
+    and DRA
+    sta DRA ; Start bit
+    lda #8 ; 2c ; 9600 = 8, 4800 = 21
+    jsr delay_short ; 20 + (8-1)*8 = 76c ; Start bit total 104 cycles - 104 cycles measured
+    nop ; 2c
+    nop ; 2c
+    ldx #8 ; 2c
+serial_tx_loop:
+    lsr outb ; 5c
+    lda DRA ; 3c
+    bcc tx0 ; 2/3c
+    ora #2 ; TX bit is bit 1 ; 2c
+    bcs bitset ; BRA 3c
+tx0:
+    nop ; 2c
+    and #$fd ; 2c
+bitset:
+    sta DRA ; 3c
+    ; Delay one period - overhead ; 101c total ; 103c measured
+    lda #8 ; 2c ; 9600 8, 4800 21
+    jsr delay_short ; 20 + (8-1)*8 = 76c
+    dex ; 2c
+    bne serial_tx_loop ; 3c
+    nop ; 2c ; Last bit 98us counted, 100us measured
+    nop ; 2c
+    nop ; 2c
+    nop ; 2c
+    lda DRA ;3c
+    ora #2 ; 2c
+    sta DRA ; Stop bit 3c
+    lda #8 ; 2c ; 9600 8, 4800 21
+    jsr delay_short
+    rts
+
+delay_short:
+    sta WTD8DI ; Divide by 8 = A contains ticks to delay/8
+shortwait:
+    nop ; Sample every 8 cycles instead of every 6
+    lda READTDI
+    bne shortwait
+    rts
+
+message:
+    .text "Hello World!!!"
+    .byte 10
+    .byte 0
 
     .org 0xFFFA
     .word reset
