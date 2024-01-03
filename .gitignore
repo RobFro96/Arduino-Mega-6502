@@ -196,3 +196,5 @@ cython_debug/
 applesoft-lite-src/
 term-6502/replica1/
 *.bin
+temp.lst
+

@@ -31,6 +31,9 @@ class AsmAndProg:
             print("Assemble %s" % self.filename)
             if not self.assemble():
                 sys.exit(1)
+
+            self.print_symbols()
+
             self.filename = self.get_bin_from_asm(self.filename)
 
         if self.filename.endswith(".bin"):
@@ -69,8 +72,9 @@ class AsmAndProg:
                             help="assembly or binary file to program to EEPROM")
         parser.add_argument("-p", "--port", default="autodetect", required=False,
                             help="serial port to EEPROM programmer, default: autodetect")
-        parser.add_argument("-a", "--asm-options", default="-Fbin -dotdir", required=False,
-                            help="vasm assembler options")
+        parser.add_argument(
+            "-a", "--asm-options", default="-Fbin -dotdir -esc -Llo", required=False,
+            help="vasm assembler options")
         parser.add_argument(
             "-m", "--mem-region", default="E000-FFFF", required=False,
             help="memory region of EEPROM to program to, hex values separated by (-), both values included")
@@ -96,8 +100,8 @@ class AsmAndProg:
         vasm_path: str = os.path.join(os.path.split(__file__)[0], "vasm", "vasm6502_oldstyle.exe")
         out_filename: str = self.get_bin_from_asm(self.filename)
         command: str = " ".join(
-            [vasm_path] + self.args.asm_options.split(" ") + [self.filename, "-o", out_filename]
-        )
+            [vasm_path] + self.args.asm_options.split(" ") +
+            [self.filename, "-o", out_filename, "-L", "temp.lst"])
         print(command)
 
         code: int = os.system(command)
@@ -109,6 +113,26 @@ class AsmAndProg:
         print("-"*75)
 
         return code == 0
+
+    def print_symbols(self):
+        try:
+            with open("temp.lst", "r") as fp:
+                print_line = False
+                for line in fp:
+                    if "Labels by address:" in line:
+                        print_line = True
+
+                    if print_line and line == "\n":
+                        print_line = False
+
+                    if print_line:
+                        print(line.strip())
+
+            print("-"*75)
+            # os.remove("temp.lst")
+
+        except (OSError, IOError, FileNotFoundError):
+            print(RED + ("Cannot read listing temp.lst") + RESET)
 
     def analyze_mem_region(self) -> bool:
         splitted: list[str] = self.args.mem_region.split("-")
