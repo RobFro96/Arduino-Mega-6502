@@ -4,6 +4,7 @@ import sys
 import time
 
 import coloredlogs
+import pyperclip
 import serial
 import serial.tools.list_ports
 
@@ -41,17 +42,20 @@ class AsmAndProg:
             if not self.load_binary():
                 sys.exit(3)
 
-            if not self.open_port():
-                sys.exit(4)
+            if self.args.wozmon_out:
+                self.output_wozmon()
+            else:
+                if not self.open_port():
+                    sys.exit(4)
 
-            if not self.program():
-                sys.exit(5)
+                if not self.program():
+                    sys.exit(5)
 
-            if not self.verify():
-                sys.exit(6)
+                if not self.verify():
+                    sys.exit(6)
 
-            print("Programming finished.")
-            sys.exit(1)
+                print("Programming finished.")
+                sys.exit(1)
         else:
             print(RED + ("Error: Cannot assemble or program %s" % self.filename) + RESET)
             sys.exit(7)
@@ -79,6 +83,10 @@ class AsmAndProg:
                             help="EEPROM programmer baud rate")
         parser.add_argument("-f", "--full-flash", action="store_true", required=False,
                             help="fully program the EEPROM and do not skip empty blocks")
+        parser.add_argument("-w", "--wozmon-out", action="store_true", required=False,
+                            help="output assembled binary to clipboard as WozMon code")
+        parser.add_argument("-r", "--wozmon-run", action="store_true", required=False,
+                            help="add run statement to WozMon code")
 
         self.args: argparse.Namespace = parser.parse_args()
         self.filename: str = self.args.filename
@@ -115,13 +123,13 @@ class AsmAndProg:
             print(RED + "Cannot read hex values." + RESET)
             return False
 
-        if self.mem_start & 0x3F != 0 or (self.mem_end + 1) & 0x3F != 0:
+        if (self.mem_start & 0x3F != 0 or (self.mem_end + 1) & 0x3F != 0) and not self.args.wozmon_out:
             print(RED + "Memory region is not aligned to 64-byte blocks." + RESET)
             return False
 
         self.mem_size: int = self.mem_end - self.mem_start + 1
         if self.mem_size <= 0:
-            print(RED + "Invalid memory region: size or negative size." + RESET)
+            print(RED + "Invalid memory region: zero or negative size." + RESET)
             return False
 
         return True
@@ -130,20 +138,41 @@ class AsmAndProg:
         try:
             with open(self.filename, "rb") as fp:
                 self.mem_content = list(bytearray(fp.read()))
-                if len(self.mem_content) < self.mem_size:
-                    zeros: list = [0] * (self.mem_size - len(self.mem_content))
-                    if self.args.left_align:
-                        self.mem_content += zeros
-                    else:
-                        self.mem_content: list = zeros + self.mem_content
-                elif len(self.mem_content) > self.mem_size:
-                    print(RED + "Binary file is larger than memory range." + RESET)
-                    return False
-
+                if not self.args.wozmon_out:
+                    if len(self.mem_content) < self.mem_size:
+                        zeros: list = [0] * (self.mem_size - len(self.mem_content))
+                        if self.args.left_align:
+                            self.mem_content += zeros
+                        else:
+                            self.mem_content: list = zeros + self.mem_content
+                    elif len(self.mem_content) > self.mem_size:
+                        print(RED + "Binary file is larger than memory range." + RESET)
+                        return False
+                else:
+                    if len(self.mem_content) > self.mem_size:
+                        print(RED + "Binary file is larger than memory range." + RESET)
+                        return False
+                    self.mem_size = len(self.mem_content)
                 return True
         except (OSError, IOError, FileNotFoundError):
             print(RED + ("Cannot read binary %s" % self.filename) + RESET)
             return False
+
+    def output_wozmon(self):
+        lines = []
+        for i in range(0, self.mem_size, 8):
+            segment: list = self.mem_content[i: i+8]
+            addr: int = i + self.mem_start
+            line = "%04X: " % addr
+            line += " ".join(["%02X" % data for data in segment])
+            lines.append(line)
+
+        if self.args.wozmon_run:
+            lines.append("%04XR" % self.mem_start)
+        output = "\r\n".join(lines) + "\r\n"
+        print(" ")
+        print(output)
+        pyperclip.copy(output)
 
     def open_port(self) -> bool:
         self.portname: str = self.args.port
