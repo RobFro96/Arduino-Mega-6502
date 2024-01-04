@@ -91,6 +91,8 @@ class AsmAndProg:
                             help="output assembled binary to clipboard as WozMon code")
         parser.add_argument("-r", "--wozmon-run", action="store_true", required=False,
                             help="add run statement to WozMon code")
+        parser.add_argument("-dl", "--delete-lst", action="store_true", required=False,
+                            help="remove the temporary listing file")
 
         self.args: argparse.Namespace = parser.parse_args()
         self.filename: str = self.args.filename
@@ -129,7 +131,9 @@ class AsmAndProg:
                         print(line.strip())
 
             print("-"*75)
-            # os.remove("temp.lst")
+
+            if self.args.delete_lst:
+                os.remove("temp.lst")
 
         except (OSError, IOError, FileNotFoundError):
             print(RED + ("Cannot read listing temp.lst") + RESET)
