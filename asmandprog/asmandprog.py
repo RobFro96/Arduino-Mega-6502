@@ -76,7 +76,7 @@ class AsmAndProg:
             "-a", "--asm-options", default="-Fbin -dotdir -esc -Llo", required=False,
             help="vasm assembler options")
         parser.add_argument(
-            "-m", "--mem-region", default="E000-FFFF", required=False,
+            "-m", "--mem-region", default="F000-FFFF", required=False,
             help="memory region of EEPROM to program to, hex values separated by (-), both values included")
         parser.add_argument("-l", "--left-align", action="store_true", required=False,
                             help="left align memory")
