@@ -121,14 +121,16 @@ class AsmAndProg:
             with open("temp.lst", "r") as fp:
                 print_line = False
                 for line in fp:
-                    if "Labels by address:" in line:
+                    if "Symbols by name:" in line:
                         print_line = True
 
                     if print_line and line == "\n":
                         print_line = False
 
                     if print_line:
-                        print(line.strip())
+                        splitted = line.strip().split()
+                        if len(splitted) == 2:
+                            print(splitted[0] + " = 0x" + "%X" % int(splitted[1][2:], 16))
 
             print("-"*75)
 
