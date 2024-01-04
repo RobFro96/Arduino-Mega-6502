@@ -99,7 +99,7 @@ class AsmAndProg:
 
     def assemble(self) -> bool:
         print("-"*75)
-        vasm_path: str = os.path.join(os.path.split(__file__)[0], "vasm", "vasm6502_oldstyle.exe")
+        vasm_path: str = os.path.join(os.path.split(__file__)[0], "vasm6502_oldstyle.exe")
         out_filename: str = self.get_bin_from_asm(self.filename)
         command: str = " ".join(
             [vasm_path] + self.args.asm_options.split(" ") +
