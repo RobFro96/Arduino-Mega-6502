@@ -22,6 +22,32 @@ WTD8DI = RIOT + 0x15
 WTD64DI = RIOT + 0x16
 WTD1KDI = RIOT + 0x17
 	
+	.org 0xF000
+USER_SPACE:
+	lda #3
+	sta DDRB
+	lda #1
+	sta DRB
+	ldx #0
+.print_loop:
+    lda .user_message,x
+    beq .loop
+    jsr ECHO
+    inx
+	jmp .print_loop
+
+.loop:
+	lda #3
+	eor DRB
+	sta DRB
+	lda #255
+	sta WTD1KDI
+	jsr DELAY_WAIT
+	jmp .loop
+
+.user_message:
+	.asciiz "\rUSER SPACE\r"
+
 	.org 0xFE00
 RESET:
 	; 6502 reset defaults
@@ -29,7 +55,19 @@ RESET:
 	cli
 	ldx #0x7F
 	txs
+
+	; initialize RIOT DRA for UART
+	lda #0x02
+	sta DDRA
+	sta DRA
+
+	; is write protect enabled
+	lda #4
+	bit DRA
+	bne .launch_wozmon ; PA2 = H -> WOZMON
+	jmp USER_SPACE   ; else PA2 = L -> USER_SPACE
 	
+.launch_wozmon:
 	; copy eeprom prog to RAM
 	ldy #0
 .restore_eeprom_prog_loop:
@@ -38,11 +76,6 @@ RESET:
 	iny
 	cpy #11
 	bne .restore_eeprom_prog_loop
-	
-	; initialize RIOT DRA for UART
-	lda #0x02
-	sta DDRA
-	sta DRA
 	
 	; WOZMON
 	LDA #$1B                     ; Begin with escape.
