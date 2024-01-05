@@ -62,16 +62,20 @@ RESET:
 	sta DDRA
 	sta DRA
 
-	; is write protect enabled
+	; is boot button pressed?
 	lda #4
 	bit DRA
-	bne .launch_wozmon ; PA2 = H -> WOZMON
-	jmp USER_SPACE   ; else PA2 = L -> USER_SPACE
+	beq .launch_wozmon ; PA2 = L -> WOZMON
+	jmp USER_SPACE   ; else PA2 = H -> USER_SPACE
 	
 .launch_wozmon:
 	; initialize UART_CONF
 	lda #0
 	sta UART_CONF
+
+	; autohold boot button
+	lda #0x6
+	sta DDRA
 
 	; copy eeprom prog to RAM
 	ldy #0
