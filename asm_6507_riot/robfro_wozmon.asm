@@ -1,15 +1,16 @@
 EEPROM_PROG_LOC = 0x40
 WOZMON_RAM = 0x50
 UART_BUF = WOZMON_RAM
-XAML = WOZMON_RAM + 1        ; Last "opened" location Low
-XAMH = WOZMON_RAM + 2        ; Last "opened" location High
-STL = WOZMON_RAM + 3         ; Store address Low
-STH = WOZMON_RAM + 4         ; Store address High
-HEXL = WOZMON_RAM + 5        ; Hex value parsing Low
-HEXH = WOZMON_RAM + 6        ; Hex value parsing High
-YSAV = WOZMON_RAM + 7        ; Used to see if hex value is given
-MODE = WOZMON_RAM + 8        ; $00=XAM, $7F=STOR, $AE=BLOCK XAM
-INBUF = WOZMON_RAM + 9       ; Input buffer
+UART_CONF = WOZMON_RAM + 1	; BIT0=0: upper case only, BIT1=0: wozmon echo activated, BIT2=1: only output with ECHO_FORCE
+XAML = WOZMON_RAM + 2        ; Last "opened" location Low
+XAMH = WOZMON_RAM + 3        ; Last "opened" location High
+STL = WOZMON_RAM + 4         ; Store address Low
+STH = WOZMON_RAM + 5         ; Store address High
+HEXL = WOZMON_RAM + 6        ; Hex value parsing Low
+HEXH = WOZMON_RAM + 7        ; Hex value parsing High
+YSAV = WOZMON_RAM + 8        ; Used to see if hex value is given
+MODE = WOZMON_RAM + 9        ; $00=XAM, $7F=STOR, $AE=BLOCK XAM
+INBUF = WOZMON_RAM + 10       ; Input buffer
 
 RIOT = 0x80
 DRA = RIOT + 0x00
@@ -68,6 +69,10 @@ RESET:
 	jmp USER_SPACE   ; else PA2 = L -> USER_SPACE
 	
 .launch_wozmon:
+	; initialize UART_CONF
+	lda #0
+	sta UART_CONF
+
 	; copy eeprom prog to RAM
 	ldy #0
 .restore_eeprom_prog_loop:
@@ -79,7 +84,7 @@ RESET:
 	
 	; WOZMON
 	LDA #$1B                     ; Begin with escape.
-.notcr:
+.nocr:
 	CMP #$08                     ; Backspace key?
 	BEQ .backspace               ; Yes.
 	CMP #$1B                     ; ESC?
@@ -93,7 +98,7 @@ RESET:
 	
 .getline:
 	LDA #$0D                     ; Send CR
-	JSR ECHO
+	JSR ECHO_FORCE
 	
 	LDY #$01                     ; Initialize text index.
 .backspace:
@@ -103,9 +108,17 @@ RESET:
 .nextchar:
 	JSR GETCHAR
 	STA INBUF, Y                 ; Add to text buffer.
+
+	lda #2
+	bit UART_CONF				; echo charachter actived in UART_CONF?
+	bne .no_echo				; BIT1 = 1: no echo
+	lda INBUF, Y
 	JSR ECHO                     ; Display character.
+
+.no_echo:
+	LDA INBUF, Y
 	CMP #$0D                     ; CR?
-	BNE .notcr                   ; No.
+	BNE .nocr                   ; No.
 	
 	LDY #$FF                     ; Reset text index.
 	LDA #$00                     ; For XAM mode.
@@ -243,8 +256,17 @@ PRHEX:
 	ADC #$06                     ; Add offset for letter.
 	
 ECHO:
-	pha
 	sta UART_BUF
+	lda #4
+	bit UART_CONF  ; BIT2 = 1: only force echo
+	beq .echo_force_prepare
+	lda UART_BUF
+	rts
+.echo_force_prepare
+	lda UART_BUF
+ECHO_FORCE:
+	sta UART_BUF
+	pha
 	txa
 	pha
 	lda #$fd                     ; Inverse bit 1
@@ -312,6 +334,13 @@ SERIAL_RX:
 	bne .serial_rx_loop          ; 3 cycles
 	
 	; ensure upper case case
+	lda #1
+	bit UART_CONF				; upper case force activate?
+	beq .check_uppercase				; BIT1 = 0: make upper case
+	lda UART_BUF
+	rts
+	
+.check_uppercase:	
 	lda UART_BUF
 	cmp #0x60
 	bcs .make_upper_case
@@ -319,6 +348,7 @@ SERIAL_RX:
 .make_upper_case:
 	and #0xDF
 	rts
+
 EEPROM_PROG:
 	sta (STL, X)
 	lda #160
