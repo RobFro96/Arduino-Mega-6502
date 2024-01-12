@@ -25,10 +25,8 @@ WTD1KDI = RIOT + 0x17
 	
 	.org 0xF000
 USER_SPACE:
-	lda #3
+	lda #0x80
 	sta DDRB
-	lda #1
-	sta DRB
 	ldx #0
 .print_loop:
     lda .user_message,x
@@ -38,7 +36,7 @@ USER_SPACE:
 	jmp .print_loop
 
 .loop:
-	lda #3
+	lda #0x80
 	eor DRB
 	sta DRB
 	lda #255
@@ -65,7 +63,7 @@ RESET:
 	; is boot button pressed?
 	lda #4
 	bit DRA
-	beq .launch_wozmon ; PA2 = L -> WOZMON
+	bne .launch_wozmon ; PA2 = L -> WOZMON
 	jmp USER_SPACE   ; else PA2 = H -> USER_SPACE
 	
 .launch_wozmon:
