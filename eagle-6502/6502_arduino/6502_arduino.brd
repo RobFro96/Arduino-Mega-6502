@@ -235,6 +235,27 @@ robert-fromm.info</text>
 <text x="60.96" y="6.35" size="1" layer="21" ratio="12" align="bottom-center">PB7</text>
 <text x="66.04" y="6.35" size="1" layer="21" ratio="12" align="bottom-center">TX/RX</text>
 <text x="71.12" y="6.35" size="1" layer="21" ratio="12" align="bottom-center">5V</text>
+<text x="5.08" y="3.81" size="1" layer="21" ratio="12" distance="10" rot="R270" align="center-right">PA0
+RX</text>
+<text x="7.62" y="3.81" size="1" layer="21" ratio="12" distance="10" rot="R270" align="center-right">PA1
+TX</text>
+<text x="10.16" y="3.81" size="1" layer="21" ratio="12" distance="10" rot="R270" align="center-right">PA2
+BT</text>
+<text x="12.7" y="3.81" size="1" layer="21" ratio="12" rot="R270" align="center-right">PA3</text>
+<text x="15.24" y="3.81" size="1" layer="21" ratio="12" rot="R270" align="center-right">PA4</text>
+<text x="17.78" y="3.81" size="1" layer="21" ratio="12" rot="R270" align="center-right">PA5</text>
+<text x="20.32" y="3.81" size="1" layer="21" ratio="12" rot="R270" align="center-right">PA6</text>
+<text x="22.86" y="3.81" size="1" layer="21" ratio="12" rot="R270" align="center-right">PA7</text>
+<text x="27.94" y="3.81" size="1" layer="21" ratio="12" rot="R270" align="center-right">PB0</text>
+<text x="30.48" y="3.81" size="1" layer="21" ratio="12" rot="R270" align="center-right">PB1</text>
+<text x="33.02" y="3.81" size="1" layer="21" ratio="12" rot="R270" align="center-right">PB2</text>
+<text x="35.56" y="3.81" size="1" layer="21" ratio="12" rot="R270" align="center-right">PB3</text>
+<text x="38.1" y="3.81" size="1" layer="21" ratio="12" rot="R270" align="center-right">PB4</text>
+<text x="40.64" y="3.81" size="1" layer="21" ratio="12" rot="R270" align="center-right">PB5</text>
+<text x="43.18" y="3.81" size="1" layer="21" ratio="12" rot="R270" align="center-right">PB6</text>
+<text x="45.72" y="3.81" size="1" layer="21" ratio="12" distance="10" rot="R270" align="center-right">PB7
+LED</text>
+<text x="48.26" y="3.81" size="1" layer="21" ratio="12" rot="R270" align="center-right">GND</text>
 </plain>
 <libraries>
 <library name="6502_lib">

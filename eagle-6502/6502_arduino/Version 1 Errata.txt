@@ -1,0 +1,3 @@
+- Move back USB connector by 3 mm
+- Mirror oscillator footprint
+- connect PA2 directly to BOOT button

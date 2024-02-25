@@ -63,7 +63,7 @@ RESET:
 	; is boot button pressed?
 	lda #4
 	bit DRA
-	bne .launch_wozmon ; PA2 = L -> WOZMON
+	beq .launch_wozmon ; PA2 = L -> WOZMON
 	jmp USER_SPACE   ; else PA2 = H -> USER_SPACE
 	
 .launch_wozmon:
